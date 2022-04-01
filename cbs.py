@@ -92,7 +92,18 @@ def standard_splitting(collision):
 
 def disjoint_splitting(collision):
     ##############################
-    # TODO 4.1: Return a list of (two) constraints to resolve the given collision
+    agent = random.randint(0, 1)
+    location = collision['loc']
+    time_step = collision['timestep']
+    constraints = []
+    if is_vertex(location):  # vertex constraint
+        constraints.append({'agent': agent, 'loc': location, 'timestep': time_step, 'positive': True})
+        constraints.append({'agent': agent, 'loc': location, 'timestep': time_step, 'positive': False})
+    else:  # edge constraint
+        constraints.append({'agent': agent, 'loc': location, 'timestep': time_step, 'positive': True})
+        constraints.append({'agent': agent, 'loc': location, 'timestep': time_step, 'positive': False})
+    return constraints
+    # TASK 4.1: Return a list of (two) constraints to resolve the given collision
     #           Vertex collision: the first constraint enforces one agent to be at the specified location at the
     #                            specified timestep, and the second constraint prevents the same agent to be at the
     #                            same location at the timestep.
@@ -100,8 +111,6 @@ def disjoint_splitting(collision):
     #                          specified timestep, and the second constraint prevents the same agent to traverse the
     #                          specified edge at the specified timestep
     #           Choose the agent randomly
-
-    pass
 
 
 class HighLevelNode:
@@ -185,7 +194,10 @@ class CBSSolver(object):
             if len(smallest_node['collisions']) == 0:
                 return smallest_node['paths']
             collision = smallest_node['collisions'][0]
-            constraints = standard_splitting(collision)
+            if disjoint:
+                constraints = disjoint_splitting(collision)
+            else:
+                constraints = standard_splitting(collision)
             for constraint in constraints:
                 new_node = HighLevelNode().node
                 new_node['constraints'] = deepcopy(smallest_node['constraints'])

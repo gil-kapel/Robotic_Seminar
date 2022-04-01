@@ -59,9 +59,8 @@ def build_constraint_table(constraints, agent) -> dict:
     time_step_dict = defaultdict(list)
     for constraint in constraints:
         if constraint['agent'] == agent:
-            if constraint['is_positive']:
+            if constraint['positive']:
                 time_step_dict[constraint['timestep']].append([constraint['loc'], True])
-                # TODO 3
             else:
                 time_step_dict[constraint['timestep']].append([constraint['loc'], False])
     return dict(time_step_dict)
@@ -152,11 +151,6 @@ def is_positive_constraint(curr_loc, next_loc, next_time, constraint_table: dict
             else:
                 return False
     return False
-
-
-def find_next_loc(curr, c_table):
-    pass
-    # TODO 2
 
 
 def push_node(open_list, node):
