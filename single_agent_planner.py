@@ -111,6 +111,12 @@ def is_constrained(curr_loc, next_loc, next_time, constraint_table: dict):
     pass
 
 
+def is_location_out_of_boundaries(child_loc, my_map: list):
+    if child_loc[0] < 0 or child_loc[1] < 0 or child_loc[0] >= len(my_map) or child_loc[1] >= len(my_map[0]):
+        return True
+    return False
+
+
 def push_node(open_list, node):
     heapq.heappush(open_list, (node['g_val'] + node['h_val'], node['h_val'], node['loc'], node))
 
@@ -154,13 +160,13 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
             return get_path(curr)
         for direction in range(5):
             child_loc = move(curr['loc'], direction)
-            if my_map[child_loc[0]][child_loc[1]] or \
+            if is_location_out_of_boundaries(child_loc, my_map) or my_map[child_loc[0]][child_loc[1]] or \
                     is_constrained(curr['loc'], child_loc, curr['timestep'] + 1, c_table) or \
                     curr['timestep'] > len(my_map) * len(my_map):
                 # prone if found a constraint
                 continue
             child = {'loc': child_loc,
-                     'g_val': curr['g_val'] + 1,   # is g_val grows when staying at place????????????????
+                     'g_val': curr['g_val'] + 1,
                      'h_val': h_values[child_loc],
                      'parent': curr,
                      'timestep': curr['timestep'] + 1}

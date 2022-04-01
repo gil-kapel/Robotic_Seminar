@@ -194,7 +194,7 @@ class CBSSolver(object):
                 agent = constraint['agent']
                 path = a_star(self.my_map, self.starts[agent], self.goals[agent], self.heuristics[agent],
                               agent, new_node['constraints'])
-                if len(path) > 0:
+                if path is not None:
                     new_node['paths'][agent] = path
                     new_node['collisions'] = detect_collisions(new_node['paths'])
                     new_node['cost'] = get_sum_of_cost(new_node['paths'])
