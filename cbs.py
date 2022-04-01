@@ -6,6 +6,25 @@ from single_agent_planner import compute_heuristics, a_star, get_location, get_s
 from copy import deepcopy
 
 
+def reverse_edge(x: [(int, int), (int, int)]):
+    return [x[1], x[0]]
+
+
+def is_vertex(location):
+    return len(location) == 1
+
+
+def is_collision_in_list(collision, collisions) -> bool:
+    reverse_collision = deepcopy(collision)
+    reverse_collision['a1'] = collision['a2']
+    reverse_collision['a2'] = collision['a1']
+    if not is_vertex(collision['loc']):
+        reverse_collision['loc'] = [collision['loc'][1], collision['loc'][0]]
+    if collision in collisions or reverse_collision in collisions:
+        return True
+    return False
+
+
 def detect_collision(path1, path2):
     ##############################
     collision_dict = dict()
@@ -16,8 +35,8 @@ def detect_collision(path1, path2):
             return collision_dict
         elif get_location(path1, t) == get_location(path2, t + 1) and \
                 get_location(path1, t + 1) == get_location(path2, t):
-            collision_dict['loc'] = [(get_location(path1, t), get_location(path1, t + 1))]
-            collision_dict['timestep'] = t
+            collision_dict['loc'] = [get_location(path1, t), get_location(path1, t + 1)]
+            collision_dict['timestep'] = t + 1
             return collision_dict
     return None
     # TASK 3.1: Return the first collision that occurs between two robot paths (or None if there is no collision)
@@ -25,25 +44,6 @@ def detect_collision(path1, path2):
     #           A vertex collision occurs if both robots occupy the same location at the same timestep
     #           An edge collision occurs if the robots swap their location at the same timestep.
     #           You should use "get_location(path, t)" to get the location of a robot at time t.
-
-
-def is_collision_in_list(collision, collisions) -> bool:
-    reverse_collision = deepcopy(collision)
-    reverse_collision['a1'] = collision['a2']
-    reverse_collision['a2'] = collision['a1']
-    if not is_vertex(collision['loc']):
-        reverse_collision['loc'] = (collision['loc'][1], collision['loc'][0])
-    if collision in collisions or reverse_collision in collisions:
-        return True
-    return False
-
-
-def reverse_edge(x: ((int, int), (int, int))):
-    return [(x[1], x[0])]
-
-
-def is_vertex(location):
-    return type(location[0][0]) is int
 
 
 def detect_collisions(paths):
@@ -56,11 +56,7 @@ def detect_collisions(paths):
             res = detect_collision(path1, path2)
             if res is None:
                 continue
-            collision = dict()
-            collision['a1'] = i
-            collision['a2'] = j
-            collision['loc'] = res['loc']
-            collision['timestep'] = res['timestep']
+            collision = {'a1': i, 'a2': j, 'loc': res['loc'], 'timestep': res['timestep']}
             if not is_collision_in_list(collision, collisions):
                 collisions.append(collision)
     return collisions
@@ -195,10 +191,11 @@ class CBSSolver(object):
                 new_node['constraints'] = deepcopy(smallest_node['constraints'])
                 new_node['constraints'].append(constraint)
                 new_node['paths'] = deepcopy(smallest_node['paths'])
-                a1 = constraint['agent']
-                path = a_star(self.my_map, self.starts[a1], self.goals[a1], self.heuristics[a1], a1, new_node['constraints'])
+                agent = constraint['agent']
+                path = a_star(self.my_map, self.starts[agent], self.goals[agent], self.heuristics[agent],
+                              agent, new_node['constraints'])
                 if len(path) > 0:
-                    new_node['paths'][a1] = path
+                    new_node['paths'][agent] = path
                     new_node['collisions'] = detect_collisions(new_node['paths'])
                     new_node['cost'] = get_sum_of_cost(new_node['paths'])
                     self.push_node(new_node)

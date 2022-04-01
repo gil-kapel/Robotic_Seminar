@@ -83,9 +83,11 @@ def get_path(goal_node):
 
 
 def is_future_constraints_on_goal(goal_loc, timestep, constraint_table):
-    for i, val in enumerate(constraint_table):
-        if is_constrained(goal_loc, goal_loc, i + timestep + 1, constraint_table):
-            return True
+    for key in constraint_table.keys():
+        if key >= timestep:
+            for i in range(key - timestep + 1):
+                if is_constrained(goal_loc, goal_loc, i + timestep + 1, constraint_table):
+                    return True
     return False
 
 
@@ -96,7 +98,7 @@ def is_constrained(curr_loc, next_loc, next_time, constraint_table: dict):
     for location in constraint_table[next_time]:
         if len(location) == 2:
             if location[0] == curr_loc and location[1] == next_loc or \
-                    location[0] == curr_loc and location[1] == next_loc:
+                    location[0] == next_loc and location[1] == curr_loc:
                 return True
         elif location[0] == next_loc:
             return True
@@ -152,7 +154,9 @@ def a_star(my_map, start_loc, goal_loc, h_values, agent, constraints):
             return get_path(curr)
         for direction in range(5):
             child_loc = move(curr['loc'], direction)
-            if my_map[child_loc[0]][child_loc[1]] or is_constrained(curr['loc'], child_loc, curr['timestep']+1, c_table):
+            if my_map[child_loc[0]][child_loc[1]] or \
+                    is_constrained(curr['loc'], child_loc, curr['timestep'] + 1, c_table) or \
+                    curr['timestep'] > len(my_map) * len(my_map):
                 # prone if found a constraint
                 continue
             child = {'loc': child_loc,
