@@ -1,5 +1,5 @@
 import time as timer
-from single_agent_planner import compute_heuristics, a_star, get_sum_of_cost
+from single_agent_planner import compute_heuristics, a_star, get_sum_of_cost, get_location
 
 
 class PrioritizedPlanningSolver(object):
@@ -34,16 +34,14 @@ class PrioritizedPlanningSolver(object):
                 raise BaseException('No solutions')
             result.append(path)
             for t, loc in enumerate(path):
-                for agent in range(self.num_of_agents):
-                    if agent == i:
-                        continue
-                    constraints.append({'agent': agent, 'loc': [loc], 'timestep': t})
-                    if t < len(path) - 1:
-                        constraints.append({'agent': agent, 'loc': [path[t], path[t+1]], 'timestep': t + 1})
-                    else:
-                        board_size = len(self.my_map)*len(self.my_map[0])
-                        for j in range(board_size * t):
-                            constraints.append({'agent': agent, 'loc': [path[t]], 'timestep': t + j})
+                for agent in range(i+1, self.num_of_agents):
+                    constraints.append({'agent': agent, 'loc': [loc], 'time_step': t})
+                    if t > 0:
+                        constraints.append({'agent': agent, 'loc': [path[t], path[t-1]], 'time_step': t})
+                    if t == len(path) - 1:
+                        board_area = len(self.my_map)*len(self.my_map)
+                        for j in range(board_area):
+                            constraints.append({'agent': agent, 'loc': [path[t]], 'time_step': t + j})
             ##############################
             # Task 2: Add constraints here
             #         Useful variables:

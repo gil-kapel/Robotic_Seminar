@@ -56,7 +56,10 @@ def import_mapf_instance(filename):
             elif cell == '.':
                 my_map[-1].append(False)
     # #agents
-    line = f.readline()
+    while True:
+        line = f.readline()
+        if line != '\n':
+            break
     num_agents = int(line)
     # #agents lines with the start/goal positions
     starts = []
@@ -107,7 +110,10 @@ if __name__ == '__main__':
         else:
             raise RuntimeError("Unknown solver!")
 
+        import time
         cost = get_sum_of_cost(paths)
+        # print(time.time() - cbs.start_time)
+        print(cost)
         result_file.write("{},{}\n".format(file, cost))
 
 
