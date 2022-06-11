@@ -191,7 +191,7 @@ class CBSSolver(object):
                 new_constraints = deepcopy(smallest_node['constraints'])
                 new_constraints.append(deepcopy(constraint))
                 new_node = {'cost': smallest_node['cost'],
-                            'constraints': new_constraints ,
+                            'constraints': new_constraints,
                             'paths': deepcopy(smallest_node['paths']), 'collisions': []}
                 agent = constraint['agent']
                 path = a_star(self.my_map, self.starts[agent], self.goals[agent], self.heuristics[agent],

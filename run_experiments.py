@@ -2,6 +2,9 @@
 import argparse
 import glob
 from pathlib import Path
+
+import timer
+
 from cbs import CBSSolver
 from independent import IndependentSolver
 from prioritized import PrioritizedPlanningSolver
@@ -72,8 +75,9 @@ def import_mapf_instance(filename):
     f.close()
     return my_map, starts, goals
 
-
+import time
 if __name__ == '__main__':
+    start = time.time()
     parser = argparse.ArgumentParser(description='Runs various MAPF algorithms')
     parser.add_argument('--instance', type=str, default=None,
                         help='The name of the instance file(s)')
@@ -88,7 +92,7 @@ if __name__ == '__main__':
 
 
     result_file = open("results.csv", "w", buffering=1)
-
+    mid = 0
     for file in sorted(glob.glob(args.instance)):
 
         print("***Import an instance***")
@@ -96,8 +100,9 @@ if __name__ == '__main__':
         print_mapf_instance(my_map, starts, goals)
 
         if args.solver == "CBS":
-            print("***Run CBS***")
             cbs = CBSSolver(my_map, starts, goals)
+            mid = time.time()
+            print(f'***Run CBS*** after {mid-start}')
             paths = cbs.find_solution(args.disjoint)
         elif args.solver == "Independent":
             print("***Run Independent***")
@@ -113,9 +118,8 @@ if __name__ == '__main__':
         import time
         cost = get_sum_of_cost(paths)
         # print(time.time() - cbs.start_time)
-        print(cost)
+        print(f'solving time is : {time.time() - mid}')
         result_file.write("{},{}\n".format(file, cost))
-
 
         if not args.batch:
             print("***Test paths on a simulation***")
